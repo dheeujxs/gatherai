@@ -18,7 +18,7 @@ export const NewMeetingDialog=({open, onOpenChange}:NewMeetingDilogProps) => {
         onOpenChange(false)
         router.push(`/meetings/${id}`)
       }}
-      onCancel={() => onOpenChange}
+      onCancel={() => onOpenChange(false)}
       />
 
 
