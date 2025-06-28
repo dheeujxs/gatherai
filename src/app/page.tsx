@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/shared/Header";
 import { Card } from "@/components/ui/card";
+import Image from "next/image";
 
 const FEATURES = [
   {
@@ -108,11 +109,17 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <div className="container mx-auto max-w-5xl overflow-hidden rounded-xl shadow-xl">
-          <div className="gradient p-1 aspect-[16/9]">
-            {/* Video preview or hero animation area */}
-          </div>
-        </div>
+       <div className="container mx-auto max-w-5xl overflow-hidden rounded-xl shadow-xl">
+  <div className="relative aspect-[16/9] gradient p-1 rounded-xl overflow-hidden">
+    <Image
+      src="/landing.png"
+      alt="Banner"
+      fill
+      className="object-contain rounded-lg"
+    />
+  </div>
+</div>
+
       </section>
       <section id="features" className="bg-gray-50 py-20">
         <div className="container mx-auto px-4 md:px-6 text-center">
