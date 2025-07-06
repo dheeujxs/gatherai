@@ -1,99 +1,119 @@
-import { StreamTransciptItem } from "@/modules/meetings/types";
-import { inngest } from "./client";
-import JSONL from "jsonl-parse-stringify";
-import { db } from "@/db";
-import { agents, meetings, user } from "@/db/schema";
-import { eq, inArray } from "drizzle-orm";
+import JSONL from 'jsonl-parse-stringify'
+import { inngest } from './client'
 
-// Hugging Face Summarizer
-async function summarizeWithHuggingFace(text: string): Promise<string> {
-  const HF_API_TOKEN = process.env.HF_API_TOKEN;
-  if (!HF_API_TOKEN) {
-    throw new Error("Missing HF_API_TOKEN in environment variables.");
-  }
+import { StreamTransciptItem } from '@/modules/meetings/types'
+import {createAgent, openai, TextMessage} from "@inngest/agent-kit"
+import { db } from '@/db';
+import { eq, inArray } from 'drizzle-orm';
+import { agents, meetings, user } from '@/db/schema';
 
-  const response = await fetch(
-    "https://api-inference.huggingface.co/models/facebook/bart-large-cnn",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${HF_API_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ inputs: text }),
-    }
-  );
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Hugging Face API error: ${response.status} - ${error}`);
-  }
+const summarizer = createAgent({
+  name:"summarizer",
+  system:`
+  You are an expert summarizer. You write readable, concise, simple content. You are given a transcript of a meeting and you need to summarize it.
 
-  const data = await response.json();
-  return data?.[0]?.summary_text ?? "No summary available.";
-}
+Use the following markdown structure for every output:
+
+### Overview
+Provide a detailed, engaging summary of the session's content. Focus on major features, user workflows, and any key takeaways. Write in a narrative style, using full sentences. Highlight unique or powerful aspects of the product, platform, or discussion.
+
+### Notes
+Break down key content into thematic sections with timestamp ranges. Each section should summarize key points, actions, or demos in bullet format.
+
+Example:
+#### Section Name
+- Main point or demo shown here
+- Another key insight or interaction
+- Follow-up tool or explanation provided
+
+#### Next Section
+- Feature X automatically does Y
+- Mention of integration with Z`.trim(),
+model:openai({model:"gpt-3.5-turbo" , apiKey:process.env.OPENAI_API_KEY})
+});
+
+
 
 export const meetingsProcessing = inngest.createFunction(
-  { id: "meetings/processing" },
-  { event: "meetings/processing" },
-  async ({ event, step }) => {
-    const { transcriptUrl, meetingId } = event.data;
+  {id:"meetings/processing"},
+  {event:"meetings/processing"},
+  async({event,step}) =>{
+    const response  = await step.fetch(event.data.transcriptUrl);
 
-    if (!transcriptUrl || !meetingId) {
-      throw new Error("Missing transcriptUrl or meetingId in event data.");
-    }
-
-    const response = await step.fetch(transcriptUrl, {
-      method: "GET",
-    });
-
-    const transcript = await step.run("parse-transcript", async () => {
+    const transcript = await step.run("parse-transcript" , async () => {
       const text = await response.text();
-      try {
-        return JSONL.parse<StreamTransciptItem>(text);
-      } catch  {
-        throw new Error("Failed to parse transcript JSONL.");
-      }
-    });
+      return JSONL.parse<StreamTransciptItem>(text)
+    })
 
-    const transcriptWithSpeakers = await step.run("add-speakers", async () => {
-      const speakerIds = [...new Set(transcript.map((item) => item.speaker_id))];
+    const transcriptWithSpeakers = await step.run("add-speakes", async() =>{
+      const speakerIds = [
+        ...new Set(transcript.map((item) => item.speaker_id)),
+      ];
 
-      const [userSpeakers, agentSpeakers] = await Promise.all([
-        db.select().from(user).where(inArray(user.id, speakerIds)),
-        db.select().from(agents).where(inArray(agents.id, speakerIds)),
-      ]);
+      const userSpeakers = await db
+      .select()
+      .from(user)
+      .where(inArray(user.id,
+        speakerIds
+      ))
+      .then((user) => 
+        user.map((user) => ({
+          ...user,
+        }))
+      )
+      const agentsSpeakers = await db
+      .select()
+      .from(agents)
+      .where(inArray(user.id,
+        speakerIds
+      ))
+      .then((agents) => 
+        agents.map((agent) => ({
+          ...agent,
+        }))
+      );
 
-      const speakers = [...userSpeakers, ...agentSpeakers];
+      const speakers = [...userSpeakers , ...agentsSpeakers]
+
 
       return transcript.map((item) => {
-        const speaker = speakers.find((s) => s.id === item.speaker_id);
-        return {
-          ...item,
-          user: {
-            name: speaker?.name ?? "Unknown",
-          },
-        };
+        const speaker = speakers.find(
+          (speaker) => speaker.id === item.speaker_id
+        );
+
+        if(!speaker) {
+          return {
+            ...item,
+            user:{
+              name:"Unknown"
+            }
+          };
+        }
+              return {
+            ...item,
+            user:{
+              name:speaker.name,
+            
+          }
+          
+        }
       });
     });
 
-    const summaryText = await step.run("summarize-transcript", async () => {
-      const plainText = transcriptWithSpeakers
-        .map((item) => `${item.user.name}: ${item.text}`)
-        .join("\n");
+    const {output} = await summarizer.run(
+      "Summarize the follwoing transcript: "+
+      JSON.stringify(transcriptWithSpeakers)
+    );
 
-      const input = plainText.slice(0, 3000); // Hugging Face token limitation
-      return await summarizeWithHuggingFace(input);
-    });
-
-    await step.run("save-summary", async () => {
+    await step.run("save-summary", async() =>{
       await db
-        .update(meetings)
-        .set({
-          summary: summaryText,
-          status: "completed",
-        })
-        .where(eq(meetings.id, meetingId));
-    });
+      .update(meetings)
+      .set({
+        summary: (output[0] as TextMessage).content as string,
+        status:"completed"
+      })
+      .where(eq(meetings.id,event.data.meetingId))
+    })
   }
-);
+)
