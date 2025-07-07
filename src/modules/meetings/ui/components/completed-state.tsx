@@ -8,6 +8,8 @@ import { GeneratedAvatar } from '@/components/generated-avatar';
 import { format} from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { formatDuration } from '@/lib/utils';
+import { Transcript } from './transcript';
+import { ChateProvider } from './chat-provider';
 interface Props {
     data: MeetingGetOne
 }
@@ -24,7 +26,7 @@ export const CompletedState = ({data}:Props) =>{
                                 <BookOpenTextIcon />
                                 Summary
                             </TabsTrigger>
-                            <TabsTrigger value="transcipt" 
+                            <TabsTrigger value="transcript" 
                             className="text-muted-foreground rounded-nonebg-backgroud data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:text-accent-foreground h-full hover:text-accent-foreground">
                                 <FileTextIcon />
                                 Transcript
@@ -45,6 +47,14 @@ export const CompletedState = ({data}:Props) =>{
                     </ScrollArea>
 
                 </div>
+                <TabsContent value='chat'>
+                    <ChateProvider meetingId={data.id} meetingName={data.name} />
+
+                </TabsContent>
+                <TabsContent value='transcript'>
+                    <Transcript meetingId={data.id} />
+
+                </TabsContent>
                 <TabsContent value="recording">
                     <div className="bg-white rounded-lg border px-4 py-5">
                         <video src={data.recordingtUrl!} className="w-full rounded-lg" controls />
@@ -124,7 +134,7 @@ In this brief session, user engages with agent, an AI-driven agent platform. The
 ## Notes
 
 **User asks:** \`...\`  
-**Agent responds accurately with:** \`...\`  
+**Agent responds accurately with:** \`${data.agent.instruction}\`  
 Agent encourages further engagement by asking if there are more questions.
 `}
 </Markdown>
