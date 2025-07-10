@@ -4,6 +4,7 @@ import {SearchIcon} from 'lucide-react'
 import Highlighter from "react-highlight-words"
 import { useQuery } from '@tanstack/react-query'
 
+
 import { useTRPC } from '@/trpc/client'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -19,12 +20,15 @@ interface Props {
 
 export const Transcript = ({meetingId}:Props) =>{
     const trpc = useTRPC();
+
     const {data} = useQuery(trpc.meetings.getTranscipt.queryOptions({id:meetingId}))
     const [searchQuery , setSearchQuery] = useState("")
     const filteredData = (data ?? []).filter((item) =>
         item.text.toString().toLowerCase().includes(searchQuery.toLowerCase())
 
+
     );
+       
 
     return (
         <div className='bg-white rounded-lg border px-4 py-5 flex flex-col gap-y-4 w-full'>

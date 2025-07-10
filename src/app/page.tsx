@@ -4,8 +4,9 @@ import { ArrowRight, BarChart2, MessageSquare, PlugZap, ShieldCheck, UserCog, Vi
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/shared/Header";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const FEATURES = [
   {
@@ -57,7 +58,52 @@ const FEATURES = [
     "Secure video calls with enterprise-grade privacy and compliance standards.",
 }
 
+
 ]
+
+const STEPS = [
+  {
+    label:"1",
+    title:"Create agent",
+    description:"Create an agent to start the process"
+
+  },
+  {
+    label:"2",
+    title:"Create meeting",
+    description:"Create an meeting to connect with call"
+
+  },
+  {
+    label:"3",
+    title:"Join call",
+    description:"Now join the call to connect with agent"
+
+  },
+]
+const TESTIMONIALS = [
+  {
+    quote:
+      "Ye babu rao ka style hai! With Gather.AI i can conntect with ai and take insight about proety inivisting",
+    name: "Babu Rao",
+    image: "/testimonials/babubhaiya.png",
+    role: "Rental Property Manager",
+  },
+  {
+    quote:
+      "Take adavtange of ai meetings and gather and incerse your growth in 25 dyas don't spill the scheme",
+    name: "Raju",
+    image: "/testimonials/raju.jpg",
+    role: "Stock Market Expert",
+  },
+  {
+    quote:
+      "If i have the gather i would't be employedd and used gather ai to learn new techs and treans and make raju cry",
+    name: "Shyam",
+    image: "/testimonials/shyam.png",
+    role: "Job Searcher",
+  },
+];
 
 export default function LandingPage() {
   return (
@@ -158,6 +204,80 @@ export default function LandingPage() {
         </div>
         
 
+      </section>
+        <section id="how-it-works" className="py-20">
+        <div className="container mx-auto px-4 md:px-6 text-center">
+          <Badge variant="outline" className="bg-green-100 text-green-700">
+            How It Works
+          </Badge>
+          <h2 className="gradient-title mt-2 text-3xl md:text-4xl">
+          Want to dicuss from ai just follow this smile steps
+          </h2>
+          <p className="mx-auto mt-3 max-w-[700px] text-gray-500 md:text-xl/relaxed">
+            Follow these simple steps to start  your meetings and gathers with ai
+          </p>
+
+          <div className="mx-auto mt-12 grid max-w-5xl gap-8 md:grid-cols-3">
+            {STEPS.map(({ label, title, description }) => (
+              <div key={label} className="flex flex-col items-center space-y-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-xl font-bold text-green-600">
+                  {label}
+                </div>
+                <h3 className="text-xl font-bold">{title}</h3>
+                <p className="text-gray-500 text-center">{description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+         <section className="bg-gray-50 py-20">
+        <div className="container mx-auto px-4 md:px-6 text-center">
+          <Badge variant="outline" className="bg-green-100 text-green-700">
+            Testimonials
+          </Badge>
+          <h2 className="gradient-title mt-2 text-3xl md:text-4xl">
+            What our users are saying
+          </h2>
+
+          <div className="mx-auto mt-12 grid max-w-5xl gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {TESTIMONIALS.map(({ quote, name, role, image }) => (
+              <Card key={name} className="flex flex-col justify-between">
+                <CardContent className="space-y-4 p-6">
+                  <p className="text-gray-500">{quote}</p>
+                  <div className="flex items-center space-x-3">
+                    <Avatar>
+                      {/* Placeholder avatar */}
+                      <AvatarImage src={image} alt={name} />
+                      <AvatarFallback className="uppercase">
+                        {name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="text-left">
+                      <p className="text-sm font-medium">{name}</p>
+                      <p className="text-sm text-muted-foreground">{role}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+         <section className="py-20 gradient">
+        <div className="container mx-auto px-4 md:px-6 text-center space-y-6">
+          <h2 className="text-3xl font-extrabold tracking-tight md:text-4xl text-white">
+            Ready to Gather mettings and talk with ai agent
+          </h2>
+          <p className="mx-auto max-w-[600px] text-green-400 md:text-xl/relaxed">
+            Join thousands of users who are using gather.ai to build
+          </p>
+          <Button asChild size="lg" className="bg-green-800 hover:opacity-90">
+            <Link href="/dashboard">
+              Get Started
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
       </section>
     </div>
   );

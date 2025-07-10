@@ -45,7 +45,7 @@ export const AgentIdView= ({agentId}:Props) =>{
 
     const [RemoveConfirmation,confirmRemove] = UseConfirm(
         "Are you sure?",
-        `the following action will remove ${data.meetingsCount} asscoiated meetings`
+        `the following action will remove ${data.meetingCount} asscoiated meetings`
     )
 
     const handleRemoveAgent = async () =>{
@@ -84,7 +84,7 @@ export const AgentIdView= ({agentId}:Props) =>{
                     </div>
                     <Badge variant='outline' className="flex items-center gap-x-2 [&>svg]:size-4">
                         <VideoIcon  className="text-blue-700"/>
-                        {data.meetingsCount} {data.meetingsCount === 1 ?"meeting":"meetings"}
+                        {data.meetingCount} {data.meetingCount === 1 ?"meeting":"meetings"}
                         
                     </Badge>
                     <div className="flex flex-col gap-y-4">

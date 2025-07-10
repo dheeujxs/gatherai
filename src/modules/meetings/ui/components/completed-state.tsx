@@ -4,6 +4,9 @@ import {ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpenTextIcon, ClockFadingIcon, FileTextIcon, FileVideoIcon, SparklesIcon } from "lucide-react";
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query'
+import { useTRPC } from '@/trpc/client'
+
 import { GeneratedAvatar } from '@/components/generated-avatar';
 import { format} from 'date-fns';
 import { Badge } from '@/components/ui/badge';
@@ -15,6 +18,9 @@ interface Props {
 }
 
 export const CompletedState = ({data}:Props) =>{
+    const trpc = useTRPC();
+const { data: transcript } = useQuery(trpc.meetings.getTranscipt.queryOptions({ id: data.id }));
+  const firstUserMessage = transcript?.find((item) => item.user.name === "user")?.text ?? "No question found";
     return (
         <div className="flex flex-col  gap-y-4">
             <Tabs defaultValue="summary">
@@ -124,16 +130,17 @@ export const CompletedState = ({data}:Props) =>{
                                     ),
                                    
                                 }}
-                                > 
+                                >                               
+
                         
 {`
 ## Overview
 
-In this brief session, user engages with agent, an AI-driven agent platform. The conversation highlights the agent's capability to provide quick and accurate responses to basic inquiries. This interaction demonstrates the platform's user-friendly nature and readiness to tackle further mathematical queries.
+In this brief session, user engages with agent, an AI-driven agent platform. The conversation highlights the agent's capability to provide quick and accurate responses to basic inquiries. This interaction demonstrates the platform's user-friendly nature and readiness to tackle further any queries.
 
 ## Notes
 
-**User asks:** \`...\`  
+**User asks:** \`${firstUserMessage}\`  
 **Agent responds accurately with:** \`${data.agent.instruction}\`  
 Agent encourages further engagement by asking if there are more questions.
 `}
