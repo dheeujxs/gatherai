@@ -62,13 +62,13 @@ const router = useRouter();
                 name:data.name,
                 email: data.email,
                 password:data.password,
-                callbackURL:"/dashboard"
+                callbackURL:"/meetings"
        
             },
             {
               onSuccess: () => {
                     setPending(false)
-                    router.push("/dashboard")
+                    router.push("/meetings")
          
               },
               onError:({error}) => {
@@ -85,7 +85,7 @@ const router = useRouter();
           authClient.signIn.social(
                 {
                     provider:provider,
-                    callbackURL:'/dashboard'
+                    callbackURL:'/meetings'
                 },
                 {
                   onSuccess: () => {
