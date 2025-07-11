@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { LayoutDashboard, LogIn } from "lucide-react";
+import { LogIn, VideoIcon } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "../ui/button";
@@ -48,16 +48,16 @@ export default function Header() {
         <div className="flex items-center gap-4">
           {!isPending && data?.user ? (
             <>
-              <Link href="/dashboard">
+              <Link href="/meetings">
                 <Button
                   variant="outline"
                   className="hidden md:inline-flex items-center gap-2 hover:text-green-600 hover:border-green-600 transition"
                 >
-                  <LayoutDashboard className="h-4 w-4" />
-                  Dashboard
+                 <VideoIcon className="h-4 w-4 text-blue-700" />
+                  Meetings
                 </Button>
                 <Button variant="ghost" className="md:hidden w-10 h-10 p-0">
-                  <LayoutDashboard className="h-4 w-4 text-green-600" />
+                  <VideoIcon className="h-4 w-4 text-blue-600" />
                 </Button>
               </Link>
               <HeaderUserButton />

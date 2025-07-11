@@ -139,7 +139,7 @@ export default function LandingPage() {
               size="lg"
               className="bg-green-600 hover:bg-green-700"
             >
-              <Link href="/dashboard">
+              <Link href="/meetings">
                 Start a Gathering
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
@@ -272,7 +272,7 @@ export default function LandingPage() {
             Join thousands of users who are using gather.ai to build
           </p>
           <Button asChild size="lg" className="bg-green-800 hover:opacity-90">
-            <Link href="/dashboard">
+            <Link href="/meetings">
               Get Started
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
